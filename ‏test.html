@@ -86,8 +86,8 @@ let treasureMaster=null;
 function audio(){
  try{let C=window.AudioContext||window.webkitAudioContext;if(!C)return null;
  ctx=ctx||new C();if(!treasureMaster){treasureMaster=ctx.createDynamicsCompressor();
- treasureMaster.threshold.value=-22;treasureMaster.knee.value=12;
- treasureMaster.ratio.value=8;treasureMaster.attack.value=.004;
+ treasureMaster.threshold.value=-20;treasureMaster.knee.value=12;
+ treasureMaster.ratio.value=8;treasureMaster.attack.value=.003;
  treasureMaster.release.value=.18;treasureMaster.connect(ctx.destination)}
  if(ctx.state==='suspended')ctx.resume();return ctx}catch(e){return null}}
 function tone(f,t,d,type='triangle',vol=.72){let c=audio();if(!c)return;
@@ -98,22 +98,23 @@ function tone(f,t,d,type='triangle',vol=.72){let c=audio();if(!c)return;
  o.connect(g);g.connect(treasureMaster||c.destination);
  o.start(t);o.stop(t+d+.03)}
 function soundAnswer(ok){
- if(!sound)return;let c=audio();if(!c)return;let t=c.currentTime+.025;
- // Layered tones with upper harmonics for better audibility on phone speakers.
+ if(!sound)return;
+ const c=audio();if(!c)return;
+ const t=c.currentTime;
  if(ok){
-   [[784,0,.23],[988,.18,.24],[1175,.37,.42]].forEach(([f,off,dur])=>{
-     tone(f,t+off,dur,'square',.36);tone(f/2,t+off,dur,'triangle',.46);
-   });
+  tone(660,t,.27,'triangle',.82);
+  tone(880,t+.19,.34,'triangle',.82);
+  tone(1050,t+.43,.38,'triangle',.82);
  }else{
-   [[494,0,.30],[370,.28,.48]].forEach(([f,off,dur])=>{
-     tone(f,t+off,dur,'square',.31);tone(f/2,t+off,dur,'triangle',.44);
-   });
+  tone(340,t,.33,'sawtooth',.75);
+  tone(230,t+.25,.4,'sawtooth',.75);
  }
 }
 function victory(){
- if(!sound)return;let c=audio();if(!c)return;let t=c.currentTime+.08;
- [[523,0,.23],[659,.21,.23],[784,.42,.24],[1047,.65,.34],[880,1.01,.25],[1047,1.25,.25],[1319,1.50,.61]]
- .forEach(([f,off,dur])=>{tone(f,t+off,dur,'square',.31);tone(f/2,t+off,dur,'triangle',.46)});
+ if(!sound)return;
+ const c=audio();if(!c)return;
+ const t=c.currentTime;
+ [523,659,784,1047,988,1047,1319,1568].forEach((f,i)=>tone(f,t+i*.21,.45,'triangle',.82));
 }
 function toggleSound(){sound=!sound;document.getElementById("soundBtn").textContent=sound?"🔊 الصوت مفعّل":"🔇 الصوت مغلق";if(sound)audio()}
 function jumpToStage(n){stage=n;document.getElementById("game").classList.remove("hidden");document.getElementById("stagePicker").classList.remove("hidden");document.getElementById("result").classList.add("hidden");render();document.getElementById("stagePicker").scrollIntoView({behavior:"smooth",block:"start"})}
