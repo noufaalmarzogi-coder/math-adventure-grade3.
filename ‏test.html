@@ -97,14 +97,24 @@ function tone(f,t,d,type='triangle',vol=.72){let c=audio();if(!c)return;
  g.gain.exponentialRampToValueAtTime(.001,t+d);
  o.connect(g);g.connect(treasureMaster||c.destination);
  o.start(t);o.stop(t+d+.03)}
-function soundAnswer(ok){if(!sound)return;let c=audio();if(!c)return;
- let t=c.currentTime+.025;
- if(ok){tone(659,t,.26,'triangle',.76);tone(880,t+.20,.33,'triangle',.82);tone(1047,t+.43,.38,'triangle',.80)}
- else{tone(370,t,.34,'sawtooth',.50);tone(247,t+.26,.46,'sawtooth',.53)}}
-function victory(){if(!sound)return;let c=audio();if(!c)return;
- let t=c.currentTime+.20;
- [[523,0,.25],[659,.23,.25],[784,.46,.28],[1047,.72,.39],[880,1.12,.26],[1047,1.37,.30],[1319,1.68,.65]]
- .forEach(([f,off,d])=>tone(f,t+off,d,'triangle',.82))}
+function soundAnswer(ok){
+ if(!sound)return;let c=audio();if(!c)return;let t=c.currentTime+.025;
+ // Layered tones with upper harmonics for better audibility on phone speakers.
+ if(ok){
+   [[784,0,.23],[988,.18,.24],[1175,.37,.42]].forEach(([f,off,dur])=>{
+     tone(f,t+off,dur,'square',.36);tone(f/2,t+off,dur,'triangle',.46);
+   });
+ }else{
+   [[494,0,.30],[370,.28,.48]].forEach(([f,off,dur])=>{
+     tone(f,t+off,dur,'square',.31);tone(f/2,t+off,dur,'triangle',.44);
+   });
+ }
+}
+function victory(){
+ if(!sound)return;let c=audio();if(!c)return;let t=c.currentTime+.08;
+ [[523,0,.23],[659,.21,.23],[784,.42,.24],[1047,.65,.34],[880,1.01,.25],[1047,1.25,.25],[1319,1.50,.61]]
+ .forEach(([f,off,dur])=>{tone(f,t+off,dur,'square',.31);tone(f/2,t+off,dur,'triangle',.46)});
+}
 function toggleSound(){sound=!sound;document.getElementById("soundBtn").textContent=sound?"🔊 الصوت مفعّل":"🔇 الصوت مغلق";if(sound)audio()}
 function jumpToStage(n){stage=n;document.getElementById("game").classList.remove("hidden");document.getElementById("stagePicker").classList.remove("hidden");document.getElementById("result").classList.add("hidden");render();document.getElementById("stagePicker").scrollIntoView({behavior:"smooth",block:"start"})}
 function renderStageButtons(){document.getElementById("stageButtons").innerHTML=stages.map((item,i)=>{let done=answers[i*2]!==null&&answers[i*2+1]!==null;return `<button type="button" class="stage-jump${i===stage?" active":""}${done?" done":""}" aria-label="المرحلة ${i+1}: ${item[1]}" aria-current="${i===stage?"step":"false"}" onclick="jumpToStage(${i})">${done?"✓ ":""}${i===0?"🎤 الإذاعة الصباحية":"الحصة "+["","الأولى","الثانية","الثالثة","الرابعة","الخامسة","السادسة"][i]}</button>`}).join("")}
